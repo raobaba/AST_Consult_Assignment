@@ -6,6 +6,11 @@
     box-shadow: rgba(17, 12, 46, 0.15) 0px 48px 100px 0px;
     border-radius: 5px;
   }
+  .password-validation-alert {
+    margin-top: 5px;
+    font-size: 12px;
+    color: #ff0000;
+  }
   
   .login-container h2 {
     margin-bottom: 20px;
@@ -20,6 +25,8 @@
     display: block;
     margin-bottom: 5px;
   }
+
+  
   
   .form-group input {
     width: 94%;
@@ -29,6 +36,14 @@
     border-radius: 5px;
   }
   
+
+  .custom-toast-success {
+    /* Add your custom styles here */
+    background-color: #4caf50;
+    color: #fff;
+    font-size: 16px;
+  }
+
   button {
     padding: 10px 20px;
     font-size: 16px;

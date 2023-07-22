@@ -21,13 +21,9 @@ export default function SignUp() {
       ...prevData,
       [name]: value,
     }));
-
-    // Show the password alert when the user starts typing in the password field
     if (name === "password") {
       setShowPasswordAlert(true);
     }
-
-    // Check if the password meets the criteria and hide the alert if it does
     if (
       name === "password" &&
       /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/.test(value)
@@ -141,7 +137,7 @@ export default function SignUp() {
         </div>
         <button type="submit">Submit</button>
       </form>
-      <ToastContainer />
+      <ToastContainer className="custom-toast-container" position="top-center"/>
       <p className="redirection">
         Already have an Account,{" "}
         <Link to="/login">
