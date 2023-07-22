@@ -6,6 +6,7 @@ const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("");
   const [showAdmin, setShowAdmin] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const handleMenuToggle = () => {
     setMenuOpen(!menuOpen);
@@ -16,10 +17,14 @@ const Navbar = () => {
     setMenuOpen(false);
   };
 
+  const handleSearchChange = (event) => {
+    setSearchQuery(event.target.value);
+  };
+
   const imageIcon =
     "https://i.pinimg.com/originals/10/6b/44/106b445f6475263fd7433367da27dbb0.png";
   const sections = [
-    { name: "gallery", link: "/gallery", label: "Gallery" },
+    { name: "gallery", link: "/", label: "Gallery" },
     { name: "add-image", link: "/add-image", label: "Create Image" },
     { name: "login", link: "/login", label: "LogIn" },
     { name: "signup", link: "/signup", label: "SignUp" },
@@ -29,23 +34,32 @@ const Navbar = () => {
   return (
     <nav className="navbar">
       <div className="navbar__left">
-        {/* Use a button instead of an anchor tag */}
         <Link to="/gallery" className="navbar__icon" onClick={() => handleSectionClick("")}>
           <img src={imageIcon} alt="icon" width={60} />
         </Link>
       </div>
+      <div className="navbar__search">
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={handleSearchChange}
+          placeholder="Search..."
+          className="search-input"
+        />
+      </div>
       <div className={`navbar__sections ${menuOpen ? "active" : ""}`}>
-        {sections.map((section) =>
-          !section.hidden ? (
-            <Link
-              key={section.name}
-              to={section.link}
-              className={activeSection === section.name ? "active" : ""}
-              onClick={() => handleSectionClick(section.name)}
-            >
-              {section.label}
-            </Link>
-          ) : null
+        {sections.map(
+          (section) =>
+            !section.hidden && (
+              <Link
+                key={section.name}
+                to={section.link}
+                className={activeSection === section.name ? "active" : ""}
+                onClick={() => handleSectionClick(section.name)}
+              >
+                {section.label}
+              </Link>
+            )
         )}
         <div className="profile-icon"></div>
       </div>

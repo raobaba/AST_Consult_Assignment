@@ -11,7 +11,7 @@ export default function Router() {
     <Routes>
       <Route path="/admin" element={<Admin />} />
       <Route path="/add-image" element={<CreateImage />} />
-      <Route path="/gallery" element={<Gallery />} />
+      <Route path="/" element={<Gallery />} />
       <Route path="/login" element={<LogIn />} />
       <Route path="/signup" element={<SignUp />} />
     </Routes>
