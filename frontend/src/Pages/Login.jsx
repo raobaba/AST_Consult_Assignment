@@ -2,10 +2,12 @@ import React, { useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
+import { Link, useHistory } from "react-router-dom";
+
 import "../Style/Login.css";
-import { Link } from "react-router-dom";
 
 export default function LogIn() {
+  
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -32,6 +34,7 @@ export default function LogIn() {
 
   const handleSuccess = () => {
     toast.success("Login successful!");
+    window.location.href = '/'
   };
 
   const handleError = (error) => {
@@ -44,7 +47,9 @@ export default function LogIn() {
     if (!email || !password || !confirmPassword) {
       alert("Please fill in all fields");
     } else if (!/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/.test(password)) {
-      alert("Invalid password. Password must be 8 characters with at least one number, one uppercase letter, and one lowercase letter.");
+      alert(
+        "Invalid password. Password must be 8 characters with at least one number, one uppercase letter, and one lowercase letter."
+      );
     } else if (password !== confirmPassword) {
       alert("Passwords do not match.");
     } else {
@@ -52,7 +57,8 @@ export default function LogIn() {
         .post("http://localhost:8000/login", formData)
         .then((response) => {
           handleSuccess();
-          console.log("Login successful!", response.data);
+          console.log("Login successful!", response.data.id);
+          localStorage.setItem("userId", response.data.id);
           setFormData({
             email: "",
             password: "",
@@ -64,7 +70,6 @@ export default function LogIn() {
         });
     }
   };
-  
 
   return (
     <div className="login-container">
@@ -82,7 +87,7 @@ export default function LogIn() {
           />
         </div>
         <div className="form-group">
-        <label htmlFor="password">Password:</label>
+          <label htmlFor="password">Password:</label>
           <input
             type="password"
             id="password"
@@ -110,7 +115,7 @@ export default function LogIn() {
         </div>
         <button type="submit">Login</button>
       </form>
-      <ToastContainer className="custom-toast-container" position="top-center"/>
+      <ToastContainer className="custom-toast-container" position="top-center" />
       <p className="redirection">
         Don't have an Account,{" "}
         <Link to="/signup">
