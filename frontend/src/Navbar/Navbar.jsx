@@ -66,7 +66,6 @@ const Navbar = () => {
     "https://i.pinimg.com/originals/10/6b/44/106b445f6475263fd7433367da27dbb0.png";
   const sections = [
     { name: "gallery", link: "/", label: "Gallery" },
-    { name: "add-image", link: "/add-image", label: "Create Image" },
     { name: "login", link: "/login", label: ProfilePic ? ProfilePic.name : "Log In" }, // Show name if ProfilePic is available
     { name: "signup", link: "/signup", label: ProfilePic ? "Log Out" : "Sign Up" }, // Show "Log Out" if ProfilePic is available
     { name: "admin", link: "/admin", label: "Admin", hidden: showAdmin },

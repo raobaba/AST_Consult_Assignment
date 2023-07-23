@@ -9,6 +9,9 @@ const GallerySchema = mongoose.Schema({
         data: Buffer,
         contentType: String
     },
+    text:{
+      type:String,
+    },
     createdAt: {
         type: Date,
         default: Date.now
