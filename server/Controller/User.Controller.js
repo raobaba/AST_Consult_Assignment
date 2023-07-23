@@ -43,6 +43,7 @@ const Login = async (req, res) => {
       const token = jwt.sign(payload, secretKey, options);
       res.status(200).json({
         message: "Login successful!",
+        id: user._id, // Include the _id in the response
         name: user.name, 
         email: user.email,
         token,
@@ -52,7 +53,22 @@ const Login = async (req, res) => {
       res.status(500).json({ error: `An error occurred while logging in: ${error.message}` });
     }
   };
+  
 
+  const getSignUpById = async (req, res) => {
+    try {
+      const userId = req.params.id;
+      const user = await UserModel.findById(userId, { name: 1, email: 1, _id: 0 });
+  
+      if (!user) {
+        return res.status(404).json({ message: "User not found." });
+      }
+  
+      res.status(200).json(user);
+    } catch (error) {
+      console.error("An error occurred while fetching sign-up data:", error);
+      res.status(500).json({ error: "An error occurred while fetching sign-up data." });
+    }
+  };
 
-
-module.exports = {SignUp,Login};
+module.exports = {SignUp,Login,getSignUpById};

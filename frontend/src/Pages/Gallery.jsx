@@ -14,19 +14,23 @@ export default function Gallery() {
       });
   }, []);
 
-  // console.log(galleryItems);
-
   return (
     <div className="image-gallery">
-      {galleryItems.map((item, index) => (
-        <img
-          key={index}
-          src={`data:image/jpeg;base64,${item.data}`}
-          alt="icon"
-          style={{ maxWidth: "20%", height: "auto" }}
-        />
-      ))}
+      <div className="box left-box">
+        <div>first box</div>
+      </div>
+      <div className="box middle-box">
+        {galleryItems.map((item, index) => (
+          <img
+            key={index}
+            src={`data:image/jpeg;base64,${item.data}`}
+            alt="icon"
+          />
+        ))}
+      </div>
+      <div className="box right-box">
+        <div>third box</div>
+      </div>
     </div>
   );
 }
-

@@ -8,6 +8,10 @@ const GallerySchema = mongoose.Schema({
     image: {
         data: Buffer,
         contentType: String
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now
     }
 });
 

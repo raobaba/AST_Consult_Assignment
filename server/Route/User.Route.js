@@ -1,6 +1,6 @@
 const express = require('express');
 const multer = require('multer');
-const {SignUp,Login} = require('../Controller/User.Controller');
+const {SignUp,Login,getSignUpById} = require('../Controller/User.Controller');
 
 const UserRouter = express.Router();
 
@@ -11,5 +11,6 @@ const upload = multer({
 }).single('image');
 
 UserRouter.post('/signup', upload, SignUp);
-UserRouter.post('/login',Login)
+UserRouter.post('/login',Login);
+UserRouter.get('/get/:id',getSignUpById);
 module.exports = UserRouter;
