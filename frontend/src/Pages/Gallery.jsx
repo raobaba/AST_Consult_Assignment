@@ -14,41 +14,127 @@ export default function Gallery() {
   const [galleryItems, setGalleryItems] = useState([]);
   const [textInput, setTextInput] = useState("");
   const [imageInput, setImageInput] = useState(null);
+  const [sortBy, setSortBy] = useState("");
+  const [filterByName, setFilterByName] = useState("");
+  const [likeCounts, setLikeCounts] = useState({});
+  const [dislikeCounts, setDislikeCounts] = useState({});
+  const [commentInput, setCommentInput] = useState("");
+  const [showComments, setShowComments] = useState({});
+  const [searchInput, setSearchInput] = useState([]);
+  
 
-  useEffect(() => {
+  let userName = localStorage.getItem("userName");
+
+  const handlePostComment = async (itemId) => {
+    console.log(itemId);
+    const userId = localStorage.getItem("userId");
+    if (!userId) {
+      showToastMessage("Please Login first to comment");
+      return;
+    }
+    const commentData = {
+      comment: {
+        comment: commentInput,
+        author: userName,
+      },
+    };
+    try {
+      const response = await axios.post(
+        `http://localhost:9000/comments/${itemId}`,
+        commentData
+      );
+      if (response.status === 200) {
+        handleSuccess("Comment posted successfully!");
+        setCommentInput("");
+        fetchGalleryItems();
+      } else {
+        console.error("Failed to post comment:", response.status);
+      }
+    } catch (error) {
+      console.error("Error occurred:", error);
+    }
+  };
+
+  const handleLike = (itemId) => {
+    const userId = localStorage.getItem("userId");
+    if (!userId) {
+      showToastMessage("Please Login first to like");
+      return;
+    }
     axios
-      .get("http://localhost:8000/images")
+      .put(`http://localhost:9000/like/${itemId}`)
+      .then((response) => {
+        setLikeCounts((prevCounts) => ({
+          ...prevCounts,
+          [itemId]: response.data.likes,
+        }));
+      })
+      .catch((error) => {
+        console.error("Error liking item:", error);
+      });
+  };
+
+  const handleDislike = (itemId) => {
+    const userId = localStorage.getItem("userId");
+    if (!userId) {
+      showToastMessage("Please Login first to dislike");
+      return;
+    }
+    axios
+      .put(`http://localhost:9000/dislike/${itemId}`)
+      .then((response) => {
+        setDislikeCounts((prevCounts) => ({
+          ...prevCounts,
+          [itemId]: response.data.dislikes,
+        }));
+      })
+      .catch((error) => {
+        console.error("Error disliking item:", error);
+      });
+  };
+  useEffect(() => {
+    fetchGalleryItems();
+  }, [sortBy, filterByName,searchInput]);
+
+  const fetchGalleryItems = () => {
+    axios
+      .get(
+        `http://localhost:9000/images?sortBy=${sortBy}&filterByName=${filterByName}&searchText=${searchInput}`
+      )
       .then((response) => {
         setGalleryItems(response.data);
       })
       .catch((error) => {
         console.error("Error fetching gallery images:", error);
       });
-  }, []);
-
+  };
   const handlePost = async () => {
     const userId = localStorage.getItem("userId");
     if (!userId) {
       showToastMessage("Please Login first to post");
       return;
     }
-
     const formData = new FormData();
     formData.append("text", textInput);
     formData.append("image", imageInput);
+    formData.append("userName", userName);
     try {
-      const response = await fetch("http://localhost:8000/upload", {
+      const response = await fetch("http://localhost:9000/upload", {
         method: "POST",
         body: formData,
       });
       if (response.ok) {
+        handleSuccess("Post successful!");
         console.log("Post successful!");
         setTextInput("");
         setImageInput(null);
         axios
-          .get("http://localhost:8000/images")
+          .get("http://localhost:9000/images")
           .then((response) => {
             setGalleryItems(response.data);
+            response.data.forEach((item) => {
+              console.log(item._id);
+            });
           })
           .catch((error) => {
             console.error("Error fetching gallery images:", error);
@@ -60,9 +146,15 @@ export default function Gallery() {
       console.error("Error occurred:", error);
     }
   };
+
   const showToastMessage = (message) => {
-    toast.error(message); 
+    toast.error(message);
   };
+
+  const handleSuccess = (message) => {
+    toast.success(message);
+  };
+
   const handleDownload = (imageData, imageName) => {
     const link = document.createElement("a");
     link.href = `data:image/jpeg;base64,${imageData}`;
@@ -76,15 +168,83 @@ export default function Gallery() {
     alert("Share image data: " + imageData);
   };
 
-  console.log(galleryItems);
+  const formatDateTime = (isoString) => {
+    const dateTime = new Date(isoString);
+    const options = {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "numeric",
+      minute: "numeric",
+      second: "numeric",
+      timeZone: "UTC",
+    };
+    const formatter = new Intl.DateTimeFormat("en-US", options);
+    return formatter.format(dateTime);
+  };
+  // Function to get the filtered and sorted items
+  const getFilteredAndSortedItems = () => {
+    if (sortBy === "" && filterByName === "") {
+      return galleryItems;
+    } else if (sortBy === "latest") {
+      return [...galleryItems].sort(
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+      );
+    } else if (sortBy === "oldest") {
+      return [...galleryItems].sort(
+        (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
+      );
+    } else if (filterByName === "A-Z") {
+      return [...galleryItems].sort((a, b) =>
+        a.userName.localeCompare(b.userName)
+      );
+    } else if (filterByName === "Z-A") {
+      return [...galleryItems].sort((a, b) =>
+        b.userName.localeCompare(a.userName)
+      );
+    } else {
+      return galleryItems;
+    }
+  };
 
+  const filteredAndSortedItems = getFilteredAndSortedItems();
+  console.log(filteredAndSortedItems);
   return (
     <div className="image-gallery">
-      <ToastContainer /> {/* Add the ToastContainer at the top level */}
+      <ToastContainer />
       <div className="box left-box">
-        <div>first box</div>
+        <div>
+          <p>Filter by:</p>
+          <select
+            name=""
+            id=""
+            onChange={(e) => setFilterByName(e.target.value)}
+            value={filterByName}
+          >
+            <option value="">Filter by name</option>
+            <option value="A-Z">A-Z</option>
+            <option value="Z-A">Z-A</option>
+            {/* Add more filter options based on your data */}
+          </select>
+          <p>Sort by:</p>
+          <select onChange={(e) => setSortBy(e.target.value)} value={sortBy}>
+            <option value="">Sort by time</option>
+            <option value="latest">Time (Latest to Oldest)</option>
+            <option value="oldest">Time (Oldest to Latest)</option>
+            {/* Add more sorting options if needed */}
+          </select>
+        </div>
       </div>
       <div className="box middle-box">
+        <div className="gallery_search">
+          <input
+            type="text"
+            placeholder="Search by Username, name, and text...."
+            className="search-input"
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+          />
+        </div>
         <div className="box comment-box">
           <div className="post">
             <input
@@ -104,12 +264,18 @@ export default function Gallery() {
           </div>
         </div>
         <div className="posted_data">
-          {galleryItems.length === 0 && (
-            <div className="no_comments">No Comments</div>
-          )}
-          {galleryItems.map((item, index) => (
+          {filteredAndSortedItems.map((item, index) => (
             <div key={index} className="displayed">
-              <p>{item.text}</p>
+              <div className="profile-icon" title="Change profile picture">
+                <img
+                  src={`https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQB6tKFAxceZRcVHubzGHxl0LLnZCKZL7f7sYVWgYzCGQ&s`}
+                  alt="profile-pic"
+                  style={{ width: "100%", height: "100%", borderRadius: "50%" }}
+                />
+              </div>
+              <p className="userName">{item.userName}</p>
+              <p className="DataAndTime">{formatDateTime(item.createdAt)}</p>
+              <p className="comment">{item.text}</p>
               <img
                 src={`data:image/jpeg;base64,${item.data}`}
                 alt="icon"
@@ -117,24 +283,82 @@ export default function Gallery() {
               />
               <div className="displayed_icon">
                 <div className="react_icon">
-                  <AiFillLike size={22} color="blue" />
-                  <AiFillDislike size={22} color="blue" />
+                  <AiFillLike
+                    size={22}
+                    color="blue"
+                    style={{ cursor: "pointer" }}
+                    onClick={() => handleLike(item._id)}
+                  />
+                  <span className="counter">
+                    {likeCounts[item._id] || item.likes}
+                  </span>
+
+                  <AiFillDislike
+                    size={22}
+                    color="blue"
+                    style={{ cursor: "pointer" }}
+                    onClick={() => handleDislike(item._id)}
+                  />
+                  <span className="counter">
+                    {dislikeCounts[item._id] || item.dislikes}
+                  </span>
+
                   <AiOutlineDownload
                     size={22}
                     color="blue"
                     onClick={() => handleDownload(item.data, item.name)}
+                    style={{ cursor: "pointer" }}
                   />
                   <AiOutlineShareAlt
                     size={22}
                     color="green"
                     onClick={() => handleShare(item.data)}
+                    style={{ cursor: "pointer" }}
                   />
                 </div>
-                <input
-                  type="text"
-                  placeholder="Write your comment here..."
-                  className="write_comment"
-                />
+                <div>
+                  <div className="comment_section">
+                    <input
+                      type="text"
+                      placeholder="Write your comment here..."
+                      className="write_comment"
+                      value={commentInput}
+                      onChange={(e) => setCommentInput(e.target.value)}
+                    />
+                    <button onClick={() => handlePostComment(item._id)}>
+                      Comment
+                    </button>
+                  </div>
+                  <details>
+                    <summary
+                      onClick={() =>
+                        setShowComments((prev) => ({
+                          ...prev,
+                          [item._id]: !prev[item._id],
+                        }))
+                      }
+                    >
+                      {showComments[item._id] ? "View less..." : "View more..."}
+                    </summary>
+                    {showComments[item._id] && (
+                      <div>
+                        {item.comments.length === 0 ? (
+                          <p>No Comments</p>
+                        ) : (
+                          item.comments.map((comment, commentIndex) => (
+                            <div key={commentIndex}>
+                              <p>
+                                {comment.author}:-:
+                                {formatDateTime(comment.createdAt)}
+                              </p>
+                              <p>{comment.comment}</p>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    )}
+                  </details>
+                </div>
               </div>
             </div>
           ))}

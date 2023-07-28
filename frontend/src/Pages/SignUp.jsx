@@ -55,16 +55,15 @@ export default function SignUp() {
     if (!name || !email || !password || !image) {
       alert("Please fill in all fields");
     } else {
-      // Create form data to send files
+
       const formDataToSend = new FormData();
       formDataToSend.append("name", name);
       formDataToSend.append("email", email);
       formDataToSend.append("password", password);
       formDataToSend.append("image", image);
 
-      // Make the POST request using Axios
       axios
-        .post("http://localhost:8000/signup", formDataToSend)
+        .post("http://localhost:9000/signup", formDataToSend)
         .then((response) => {
           handleSuccess();
           console.log("Registration successful!", response.data);

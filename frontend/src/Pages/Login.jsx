@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
-import { Link, useHistory } from "react-router-dom";
+import { Link} from "react-router-dom";
 
 import "../Style/Login.css";
 
@@ -54,11 +54,12 @@ export default function LogIn() {
       alert("Passwords do not match.");
     } else {
       axios
-        .post("http://localhost:8000/login", formData)
+        .post("http://localhost:9000/login", formData)
         .then((response) => {
           handleSuccess();
           console.log("Login successful!", response.data.id);
           localStorage.setItem("userId", response.data.id);
+          localStorage.setItem("userName",response.data.name)
           setFormData({
             email: "",
             password: "",

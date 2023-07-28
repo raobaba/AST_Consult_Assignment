@@ -15,8 +15,7 @@ const Navbar = () => {
 
   useEffect(() => {
     if (userId) {
-      // Fetch user data based on the stored userId
-      axios.get(`http://localhost:8000/get/${userId}`)
+      axios.get(`http://localhost:9000/get/${userId}`)
         .then(response => {
           setProfilePic(response.data); // Response should be a single data object
         })
@@ -25,8 +24,6 @@ const Navbar = () => {
         });
     }
   }, [userId]);
-
-  console.log("User Name:", ProfilePic && ProfilePic.name); // Make sure to check for null or undefined before accessing the property
 
   const handleMenuToggle = () => {
     setMenuOpen(!menuOpen);
@@ -46,17 +43,15 @@ const Navbar = () => {
   };
 
   const handleProfileIconClick = () => {
-    fileInputRef.current.click(); // Trigger the file input click event
+    fileInputRef.current.click(); 
   };
 
   const handleFileChange = (event) => {
     const selectedFile = event.target.files[0];
-    // Do something with the selected file (e.g., upload it or process it)
     console.log("Selected file:", selectedFile);
   };
 
   const handleLogout = () => {
-    // Remove the userId from localStorage upon logout
     localStorage.removeItem('userId');
     // Reset the profile picture state
     setProfilePic(null);
@@ -66,8 +61,8 @@ const Navbar = () => {
     "https://i.pinimg.com/originals/10/6b/44/106b445f6475263fd7433367da27dbb0.png";
   const sections = [
     { name: "gallery", link: "/", label: "Gallery" },
-    { name: "login", link: "/login", label: ProfilePic ? ProfilePic.name : "Log In" }, // Show name if ProfilePic is available
-    { name: "signup", link: "/signup", label: ProfilePic ? "Log Out" : "Sign Up" }, // Show "Log Out" if ProfilePic is available
+    { name: "login", link: "/login", label: ProfilePic ? ProfilePic.name : "LogIn" }, // Show name if ProfilePic is available
+    { name: "signup", link: "/signup", label: ProfilePic ? "LogOut" : "SignUp" }, // Show "Log Out" if ProfilePic is available
     { name: "admin", link: "/admin", label: "Admin", hidden: showAdmin },
   ];
 
@@ -77,15 +72,6 @@ const Navbar = () => {
         <Link to="/" className="navbar__icon" onClick={() => handleSectionClick("")} >
           <img src={imageIcon} alt="icon" width={60} />
         </Link>
-      </div>
-      <div className="navbar__search">
-        <input
-          type="text"
-          value={searchQuery}
-          onChange={handleSearchChange}
-          placeholder="Search..."
-          className="search-input"
-        />
       </div>
       <div className={`navbar__sections ${menuOpen ? "active" : ""}`}>
         {sections.map(
