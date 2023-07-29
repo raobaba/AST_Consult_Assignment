@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import axios from 'axios';
 import { Link } from "react-router-dom";
 import "../Style/Navbar.css";
-
+import { showToastError,showToastSuccess } from "../Pages/Gallery/Like_Dislike";
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("");
@@ -15,7 +15,7 @@ const Navbar = () => {
 
   useEffect(() => {
     if (userId) {
-      axios.get(`http://localhost:9000/get/${userId}`)
+      axios.get(`https://cute-bass-life-jacket.cyclic.app/get/${userId}`)
         .then(response => {
           setProfilePic(response.data); // Response should be a single data object
         })
@@ -38,10 +38,6 @@ const Navbar = () => {
     }
   };
 
-  const handleSearchChange = (event) => {
-    setSearchQuery(event.target.value);
-  };
-
   const handleProfileIconClick = () => {
     fileInputRef.current.click(); 
   };
@@ -55,6 +51,7 @@ const Navbar = () => {
     localStorage.removeItem('userId');
     // Reset the profile picture state
     setProfilePic(null);
+    showToastSuccess("You have LogOut")
   };
 
   const imageIcon =

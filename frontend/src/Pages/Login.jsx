@@ -54,7 +54,7 @@ export default function LogIn() {
       alert("Passwords do not match.");
     } else {
       axios
-        .post("http://localhost:9000/login", formData)
+        .post("https://cute-bass-life-jacket.cyclic.app/login", formData)
         .then((response) => {
           handleSuccess();
           console.log("Login successful!", response.data.id);

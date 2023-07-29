@@ -63,12 +63,11 @@ export default function SignUp() {
       formDataToSend.append("image", image);
 
       axios
-        .post("http://localhost:9000/signup", formDataToSend)
+        .post("https://cute-bass-life-jacket.cyclic.app/signup", formDataToSend)
         .then((response) => {
           handleSuccess();
           console.log("Registration successful!", response.data);
 
-          // Reset the form data after successful submission
           setFormData({
             name: "",
             email: "",

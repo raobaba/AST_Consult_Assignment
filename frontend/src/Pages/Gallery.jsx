@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import {
   AiFillLike,
   AiFillDislike,
   AiOutlineDownload,
-  AiOutlineShareAlt,
+  AiOutlineShareAlt
 } from "react-icons/ai";
 import "react-toastify/dist/ReactToastify.css";
 import "../Style/Gallery.css";
+import {handleLike,handleDislike,showToastError,showToastSuccess} from "./Gallery/Like_Dislike.js"
+import { handleDownload, handleShare, formatDateTime } from "./Gallery/Utils";
 
 export default function Gallery() {
   const [galleryItems, setGalleryItems] = useState([]);
@@ -29,7 +31,7 @@ export default function Gallery() {
     console.log(itemId);
     const userId = localStorage.getItem("userId");
     if (!userId) {
-      showToastMessage("Please Login first to comment");
+      showToastError("Please Login first to comment");
       return;
     }
     const commentData = {
@@ -40,11 +42,11 @@ export default function Gallery() {
     };
     try {
       const response = await axios.post(
-        `http://localhost:9000/comments/${itemId}`,
+        `https://cute-bass-life-jacket.cyclic.app/comments/${itemId}`,
         commentData
       );
       if (response.status === 200) {
-        handleSuccess("Comment posted successfully!");
+        showToastSuccess("Comment posted successfully!");
         setCommentInput("");
         fetchGalleryItems();
       } else {
@@ -55,43 +57,6 @@ export default function Gallery() {
     }
   };
 
-  const handleLike = (itemId) => {
-    const userId = localStorage.getItem("userId");
-    if (!userId) {
-      showToastMessage("Please Login first to like");
-      return;
-    }
-    axios
-      .put(`http://localhost:9000/like/${itemId}`)
-      .then((response) => {
-        setLikeCounts((prevCounts) => ({
-          ...prevCounts,
-          [itemId]: response.data.likes,
-        }));
-      })
-      .catch((error) => {
-        console.error("Error liking item:", error);
-      });
-  };
-
-  const handleDislike = (itemId) => {
-    const userId = localStorage.getItem("userId");
-    if (!userId) {
-      showToastMessage("Please Login first to dislike");
-      return;
-    }
-    axios
-      .put(`http://localhost:9000/dislike/${itemId}`)
-      .then((response) => {
-        setDislikeCounts((prevCounts) => ({
-          ...prevCounts,
-          [itemId]: response.data.dislikes,
-        }));
-      })
-      .catch((error) => {
-        console.error("Error disliking item:", error);
-      });
-  };
   useEffect(() => {
     fetchGalleryItems();
   }, [sortBy, filterByName,searchInput]);
@@ -99,7 +64,7 @@ export default function Gallery() {
   const fetchGalleryItems = () => {
     axios
       .get(
-        `http://localhost:9000/images?sortBy=${sortBy}&filterByName=${filterByName}&searchText=${searchInput}`
+        `https://cute-bass-life-jacket.cyclic.app/images?sortBy=${sortBy}&filterByName=${filterByName}&searchText=${searchInput}`
       )
       .then((response) => {
         setGalleryItems(response.data);
@@ -111,7 +76,7 @@ export default function Gallery() {
   const handlePost = async () => {
     const userId = localStorage.getItem("userId");
     if (!userId) {
-      showToastMessage("Please Login first to post");
+      showToastError("Please Login first to post");
       return;
     }
     const formData = new FormData();
@@ -119,17 +84,17 @@ export default function Gallery() {
     formData.append("image", imageInput);
     formData.append("userName", userName);
     try {
-      const response = await fetch("http://localhost:9000/upload", {
+      const response = await fetch("https://cute-bass-life-jacket.cyclic.app/upload", {
         method: "POST",
         body: formData,
       });
       if (response.ok) {
-        handleSuccess("Post successful!");
+        showToastSuccess("Post successful!");
         console.log("Post successful!");
         setTextInput("");
         setImageInput(null);
         axios
-          .get("http://localhost:9000/images")
+          .get("https://cute-bass-life-jacket.cyclic.app/images")
           .then((response) => {
             setGalleryItems(response.data);
             response.data.forEach((item) => {
@@ -147,42 +112,6 @@ export default function Gallery() {
     }
   };
 
-  const showToastMessage = (message) => {
-    toast.error(message);
-  };
-
-  const handleSuccess = (message) => {
-    toast.success(message);
-  };
-
-  const handleDownload = (imageData, imageName) => {
-    const link = document.createElement("a");
-    link.href = `data:image/jpeg;base64,${imageData}`;
-    link.download = imageName || "image.jpg";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
-  const handleShare = (imageData) => {
-    alert("Share image data: " + imageData);
-  };
-
-  const formatDateTime = (isoString) => {
-    const dateTime = new Date(isoString);
-    const options = {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "numeric",
-      minute: "numeric",
-      second: "numeric",
-      timeZone: "UTC",
-    };
-    const formatter = new Intl.DateTimeFormat("en-US", options);
-    return formatter.format(dateTime);
-  };
-  // Function to get the filtered and sorted items
   const getFilteredAndSortedItems = () => {
     if (sortBy === "" && filterByName === "") {
       return galleryItems;
@@ -208,6 +137,7 @@ export default function Gallery() {
   };
 
   const filteredAndSortedItems = getFilteredAndSortedItems();
+
   console.log(filteredAndSortedItems);
   return (
     <div className="image-gallery">
@@ -287,7 +217,7 @@ export default function Gallery() {
                     size={22}
                     color="blue"
                     style={{ cursor: "pointer" }}
-                    onClick={() => handleLike(item._id)}
+                    onClick={() => handleLike(item._id, setLikeCounts)}
                   />
                   <span className="counter">
                     {likeCounts[item._id] || item.likes}
@@ -297,7 +227,7 @@ export default function Gallery() {
                     size={22}
                     color="blue"
                     style={{ cursor: "pointer" }}
-                    onClick={() => handleDislike(item._id)}
+                    onClick={() => handleDislike(item._id, setDislikeCounts)}
                   />
                   <span className="counter">
                     {dislikeCounts[item._id] || item.dislikes}
